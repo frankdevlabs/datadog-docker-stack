@@ -1,0 +1,24 @@
+version: '3.9'
+services:
+  agent:
+    image: datadog/agent:latest
+    deploy:
+      replicas: 2 # amount is identical to the number of nodes in the cluster.
+      placement:
+        max_replicas_per_node: 1
+      restart_policy:
+        condition: on-failure
+    environment:
+      - DD_API_KEY=$DD_API_KEY
+      - DD_LOGS_ENABLED=true
+      - DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL=true
+      - DD_CONTAINER_EXCLUDE=image:datadog/agent:*
+      - DD_SITE=datadoghq.eu
+    volumes:
+      - '/var/run/docker.sock:/var/run/docker.sock:ro'
+      - '/proc/:/host/proc/:ro'
+      - datadog:/opt/datadog-agent/run:rw
+      - '/sys/fs/cgroup/:/host/sys/fs/cgroup:ro'
+
+volumes:
+  datadog:
